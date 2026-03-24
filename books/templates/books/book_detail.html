@@ -1,0 +1,96 @@
+{% extends "books/base.html" %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block content %}
+<a href="{% url 'book_list' %}" class="btn btn-outline btn-sm" style="margin-bottom:1.5rem;">← All Books</a>
+
+<div style="display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:start;max-width:800px;">
+  <div style="width:120px;height:170px;background:{{ book.cover_color }};border-radius:4px 8px 8px 4px;position:relative;flex-shrink:0;box-shadow:4px 4px 20px rgba(0,0,0,0.4);">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:14px;background:rgba(0,0,0,0.25);border-radius:4px 0 0 4px;"></div>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;">
+      <span style="font-family:var(--font-display);font-size:0.7rem;color:rgba(255,255,255,0.9);line-height:1.3;">{{ book.title }}</span>
+    </div>
+  </div>
+
+  <div>
+    <h1 style="font-family:var(--font-display);font-size:1.6rem;font-weight:500;color:var(--text-primary);line-height:1.2;margin-bottom:0.4rem;">{{ book.title }}</h1>
+    <div style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">{{ book.author }} · {{ book.year }}</div>
+    {% if book.description %}<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;margin-bottom:1.2rem;">{{ book.description }}</p>{% endif %}
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.8rem;margin-bottom:1.5rem;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem;">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">ISBN</div>
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">{{ book.isbn }}</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem;">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Genre</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">{{ book.get_genre_display }}</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem;">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Copies</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">{{ book.copies_available }} / {{ book.copies_total }} available</div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      {% if user.is_student %}
+        {% if my_request %}
+          {% if my_request.status == 'pending' %}
+            <span class="badge badge-student" style="padding:0.5rem 1rem;">Request pending approval</span>
+          {% elif my_request.status == 'approved' %}
+            <span class="badge badge-available" style="padding:0.5rem 1rem;">Currently borrowed by you</span>
+          {% endif %}
+        {% elif book.is_available %}
+          <a href="{% url 'borrow_book' book.id %}" class="btn btn-primary">Request Borrow</a>
+        {% else %}
+          <span class="badge badge-borrowed" style="padding:0.5rem 1rem;">All copies borrowed</span>
+        {% endif %}
+      {% endif %}
+      {% if user.is_admin %}
+        <a href="{% url 'remove_book' book.id %}" class="btn btn-danger">Remove</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Admin: students who have this book -->
+{% if user.is_admin and active_requests %}
+<div style="max-width:800px;margin-top:2.5rem;">
+  <div class="section-header">
+    <span class="section-title">Current Borrowers</span>
+    <span class="section-count">{{ active_requests|length }} student{{ active_requests|length|pluralize }}</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Student</th><th>ID</th><th>Department</th><th>Status</th><th>Due Date</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for req in active_requests %}
+        <tr>
+          <td style="font-weight:500;">{{ req.borrower.get_full_name }}</td>
+          <td class="mono">{{ req.borrower.student_id|default:"—" }}</td>
+          <td class="muted">{{ req.borrower.department }}</td>
+          <td>
+            {% if req.status == 'approved' %}<span class="badge badge-available">Approved</span>
+            {% else %}<span class="badge badge-student">Pending</span>{% endif %}
+          </td>
+          <td class="mono" style="color:var(--stone-light);">{{ req.due_date|date:"d M Y" }}</td>
+          <td>
+            {% if req.status == 'approved' %}
+            <form method="post" action="{% url 'return_book' req.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-stone btn-sm">Mark Returned</button>
+            </form>
+            {% elif req.status == 'pending' %}
+            <div style="display:flex;gap:6px;">
+              <form method="post" action="{% url 'approve_request' req.id %}">{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm">Approve</button></form>
+              <a href="{% url 'reject_request' req.id %}" class="btn btn-danger btn-sm">Reject</a>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

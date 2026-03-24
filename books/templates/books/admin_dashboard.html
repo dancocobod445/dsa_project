@@ -1,0 +1,157 @@
+{% extends "books/base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div>
+    <h1 class="page-title">Admin Dashboard</h1>
+    <div class="page-subtitle">Library overview and pending requests</div>
+  </div>
+  <a href="{% url 'add_book' %}" class="btn btn-primary">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    Add Book
+  </a>
+</div>
+
+<!-- Clickable stat cards -->
+<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+  <a href="{% url 'stat_detail' 'books' %}" class="stat-card sage stat-clickable">
+    <div class="stat-label">Book Titles</div>
+    <div class="stat-value">{{ total_books }}</div>
+    <div class="stat-hint">View all →</div>
+  </a>
+  <a href="{% url 'stat_detail' 'copies' %}" class="stat-card stone stat-clickable">
+    <div class="stat-label">Total Copies</div>
+    <div class="stat-value">{{ total_copies }}</div>
+    <div class="stat-hint">View copies →</div>
+  </a>
+  <a href="{% url 'stat_detail' 'available' %}" class="stat-card slate stat-clickable">
+    <div class="stat-label">Available</div>
+    <div class="stat-value">{{ available_copies }}</div>
+    <div class="stat-hint">View available →</div>
+  </a>
+  <a href="{% url 'stat_detail' 'out' %}" class="stat-card danger stat-clickable">
+    <div class="stat-label">Out on Loan</div>
+    <div class="stat-value">{{ currently_out }}</div>
+    <div class="stat-hint">View borrowed →</div>
+  </a>
+  <a href="{% url 'stat_detail' 'students' %}" class="stat-card sage stat-clickable">
+    <div class="stat-label">Students</div>
+    <div class="stat-value">{{ total_students }}</div>
+    <div class="stat-hint">View students →</div>
+  </a>
+  <a href="{% url 'stat_detail' 'borrows' %}" class="stat-card stone stat-clickable">
+    <div class="stat-label">All Borrows</div>
+    <div class="stat-value">{{ total_borrows }}</div>
+    <div class="stat-hint">View log →</div>
+  </a>
+</div>
+
+<!-- Pending requests — most important section -->
+<div class="section-header" style="margin-top:2rem;">
+  <span class="section-title">Pending Requests</span>
+  <span class="section-count">{{ pending_count }} awaiting review</span>
+</div>
+
+{% if pending_requests %}
+<div class="table-wrap" style="margin-bottom:2.5rem;">
+  <table>
+    <thead>
+      <tr><th>Student</th><th>ID</th><th>Book</th><th>Requested</th><th>Due Date</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for req in pending_requests %}
+      <tr>
+        <td style="font-weight:500;">{{ req.borrower.get_full_name }}</td>
+        <td class="mono">{{ req.borrower.student_id|default:"—" }}</td>
+        <td><a href="{% url 'book_detail' req.book.id %}" style="color:var(--text-primary);">{{ req.book.title }}</a></td>
+        <td class="mono">{{ req.requested_at|date:"d M Y · H:i" }}</td>
+        <td class="mono" style="color:var(--stone-light);">{{ req.due_date|date:"d M Y" }}</td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            <form method="post" action="{% url 'approve_request' req.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary btn-sm">Approve</button>
+            </form>
+            <a href="{% url 'reject_request' req.id %}" class="btn btn-danger btn-sm">Reject</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state" style="padding:2rem 0 2.5rem;">
+  <div class="empty-icon">✓</div>
+  <p>No pending requests.</p>
+</div>
+{% endif %}
+
+<!-- Currently borrowed -->
+<div class="section-header">
+  <span class="section-title">Currently Borrowed</span>
+  <span class="section-count">{{ approved_requests|length }} active loan{{ approved_requests|length|pluralize }}</span>
+</div>
+
+{% if approved_requests %}
+<div class="table-wrap" style="margin-bottom:2.5rem;">
+  <table>
+    <thead>
+      <tr><th>Student</th><th>ID</th><th>Book</th><th>Approved</th><th>Due Date</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for req in approved_requests %}
+      <tr>
+        <td style="font-weight:500;">{{ req.borrower.get_full_name }}</td>
+        <td class="mono">{{ req.borrower.student_id|default:"—" }}</td>
+        <td><a href="{% url 'book_detail' req.book.id %}" style="color:var(--text-primary);">{{ req.book.title }}</a></td>
+        <td class="mono">{{ req.approved_at|date:"d M Y" }}</td>
+        <td class="mono" style="color:var(--stone-light);">{{ req.due_date|date:"d M Y" }}</td>
+        <td>
+          <form method="post" action="{% url 'return_book' req.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-stone btn-sm">Mark Returned</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state" style="padding:2rem 0 2.5rem;">
+  <p>No books currently out on loan.</p>
+</div>
+{% endif %}
+
+<!-- Recent transaction log -->
+<div class="section-header">
+  <span class="section-title">Recent Transactions</span>
+  <a href="{% url 'history' %}" style="font-size:0.8rem;color:var(--sage-light);">View all →</a>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Action</th><th>Book</th><th>Student</th><th>ID</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+      {% for r in recent_records %}
+      <tr>
+        <td>
+          {% if r.action == 'borrow' %}<span class="badge badge-borrowed">Borrowed</span>
+          {% else %}<span class="badge badge-available">Returned</span>{% endif %}
+        </td>
+        <td style="font-weight:500;">{{ r.book.title }}</td>
+        <td class="muted">{{ r.borrower.get_full_name }}</td>
+        <td class="mono">{{ r.borrower.student_id|default:"—" }}</td>
+        <td class="mono">{{ r.timestamp|date:"d M Y · H:i" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" style="text-align:center;color:var(--text-faint);padding:2rem;">No transactions yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

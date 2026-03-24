@@ -1,0 +1,92 @@
+{% extends "books/base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div>
+    <h1 class="page-title">Search Books</h1>
+    <div class="page-subtitle">Find books by title or author</div>
+  </div>
+</div>
+
+<div style="max-width:760px;">
+  <div class="card" style="margin-bottom:1.5rem;">
+    <form method="get">
+      <div class="form-grid" style="grid-template-columns:1fr auto auto;gap:1rem;align-items:end;">
+        <div class="field-group">
+          <label class="field-label">Search Query</label>
+          {{ form.query }}
+        </div>
+        <div class="field-group">
+          <label class="field-label">Search In</label>
+          {{ form.field }}
+        </div>
+        <div class="field-group">
+          <label class="field-label" style="visibility:hidden;">Go</label>
+          <button type="submit" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Search
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  {% if searched %}
+    {% if results %}
+    <div style="margin-bottom:0.75rem;font-size:0.8rem;color:var(--text-muted);">
+      {{ results|length }} result{{ results|length|pluralize }} found
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th><th>Author</th><th>Year</th><th>Genre</th><th>Status</th>
+            {% if user.is_student %}<th></th>{% endif %}
+            {% if user.is_admin %}<th></th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for book in results %}
+          <tr>
+            <td><a href="{% url 'book_detail' book.id %}" style="color:var(--text-primary);font-weight:500;">{{ book.title }}</a></td>
+            <td class="muted">{{ book.author }}</td>
+            <td class="mono">{{ book.year }}</td>
+            <td class="muted">{{ book.genre }}</td>
+            <td>
+              {% if book.is_available %}
+                <span class="badge badge-available">Available</span>
+              {% else %}
+                <span class="badge badge-borrowed">Borrowed</span>
+              {% endif %}
+            </td>
+            {% if user.is_student %}
+            <td>
+              {% if book.id in my_active_ids %}
+                <span class="badge badge-available">You have this</span>
+              {% elif book.id in my_pending_ids %}
+                <span class="badge badge-student">Pending</span>
+              {% elif book.is_available %}
+                <a href="{% url 'borrow_book' book.id %}" class="btn btn-primary btn-sm">Borrow</a>
+              {% endif %}
+            </td>
+            {% endif %}
+            {% if user.is_admin %}
+            <td>
+              <a href="{% url 'remove_book' book.id %}" class="btn btn-danger btn-sm">Remove</a>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <p>No books matched your search.</p>
+    </div>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

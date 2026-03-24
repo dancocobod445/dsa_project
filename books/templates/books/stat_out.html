@@ -1,0 +1,32 @@
+{% extends "books/base.html" %}
+{% block title %}Books Out on Loan{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1 class="page-title">Out on Loan</h1><div class="page-subtitle">{{ reqs|length }} book{{ reqs|length|pluralize }} currently borrowed</div></div>
+  <a href="{% url 'admin_dashboard' %}" class="btn btn-outline">← Dashboard</a>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Book</th><th>Student</th><th>Student ID</th><th>Approved</th><th>Due Date</th><th>Action</th></tr></thead>
+    <tbody>
+      {% for req in reqs %}
+      <tr>
+        <td><a href="{% url 'book_detail' req.book.id %}" style="color:var(--text-primary);font-weight:500;">{{ req.book.title }}</a></td>
+        <td>{{ req.borrower.get_full_name }}</td>
+        <td class="mono">{{ req.borrower.student_id|default:"—" }}</td>
+        <td class="mono">{{ req.approved_at|date:"d M Y" }}</td>
+        <td class="mono" style="color:var(--stone-light);">{{ req.due_date|date:"d M Y" }}</td>
+        <td>
+          <form method="post" action="{% url 'return_book' req.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-stone btn-sm">Mark Returned</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align:center;color:var(--text-faint);padding:2rem;">No books currently out.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

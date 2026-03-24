@@ -1,0 +1,47 @@
+{% extends "books/base.html" %}
+{% block title %}Request Borrow — {{ book.title }}{% endblock %}
+{% block content %}
+<div class="confirm-wrap">
+  <a href="{% url 'book_list' %}" class="btn btn-outline btn-sm" style="margin-bottom:1.5rem;">← Back</a>
+  <div class="confirm-card">
+    <div style="display:flex;gap:1.2rem;align-items:flex-start;margin-bottom:1.5rem;">
+      <div style="width:52px;height:72px;background:{{ book.cover_color }};border-radius:3px 5px 5px 3px;flex-shrink:0;"></div>
+      <div>
+        <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:500;color:var(--text-primary);">{{ book.title }}</h2>
+        <div style="color:var(--text-muted);font-size:0.85rem;margin-top:3px;">{{ book.author }} · {{ book.year }}</div>
+        <div style="margin-top:8px;"><span class="badge badge-available">{{ book.copies_available }} cop{{ book.copies_available|pluralize:"y,ies" }} available</span></div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg-surface);border-radius:var(--radius-sm);padding:0.9rem 1rem;margin-bottom:1.5rem;border:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+        <span style="color:var(--text-muted);">Student</span>
+        <span style="color:var(--text-primary);font-weight:500;">{{ user.get_full_name }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-top:6px;">
+        <span style="color:var(--text-muted);">Student ID</span>
+        <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-primary);">{{ user.student_id }}</span>
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="field-group" style="margin-bottom:1.2rem;">
+        <label class="field-label">Return Date <span style="color:var(--text-faint);font-size:0.65rem;">(1–14 days from today)</span></label>
+        {{ form.due_date }}
+        {% if form.due_date.errors %}<div class="field-error">{{ form.due_date.errors.0 }}</div>{% endif %}
+        <div style="font-size:0.75rem;color:var(--text-faint);margin-top:4px;">{{ form.due_date.help_text }}</div>
+      </div>
+
+      <div style="margin-bottom:1.2rem;">
+        <span class="algo-note">Your request will be reviewed by a librarian before approval.</span>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button type="submit" class="btn btn-primary btn-lg" style="flex:1;justify-content:center;">Submit Request</button>
+        <a href="{% url 'book_list' %}" class="btn btn-outline btn-lg" style="flex:1;justify-content:center;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

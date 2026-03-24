@@ -1,0 +1,66 @@
+{% extends "books/base.html" %}
+{% block title %}Add Book{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1 class="page-title">Add New Book</h1>
+    <div class="page-subtitle">Insert a new title into the library HashTable</div>
+  </div>
+  <a href="{% url 'book_list' %}" class="btn btn-outline">← Back</a>
+</div>
+
+<div style="max-width:680px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Book Details</span>
+      <span class="algo-note">ISBN → HashTable key</span>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-grid">
+        <div class="field-group full">
+          <label class="field-label">Title</label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="field-error">{{ form.title.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="field-group">
+          <label class="field-label">Author</label>
+          {{ form.author }}
+          {% if form.author.errors %}<div class="field-error">{{ form.author.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="field-group">
+          <label class="field-label">ISBN</label>
+          {{ form.isbn }}
+          {% if form.isbn.errors %}<div class="field-error">{{ form.isbn.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="field-group">
+          <label class="field-label">Year</label>
+          {{ form.year }}
+        </div>
+        <div class="field-group">
+          <label class="field-label">Genre</label>
+          {{ form.genre }}
+        </div>
+        <div class="field-group">
+          <label class="field-label">Number of Copies</label>
+          {{ form.copies_total }}
+        </div>
+        <div class="field-group">
+          <label class="field-label">Cover Colour</label>
+          {{ form.cover_color }}
+        </div>
+        <div class="field-group full">
+          <label class="field-label">Description (optional)</label>
+          {{ form.description }}
+        </div>
+      </div>
+      <div style="margin-top:1.5rem;display:flex;gap:10px;">
+        <button type="submit" class="btn btn-primary btn-lg">Add to Library</button>
+        <a href="{% url 'book_list' %}" class="btn btn-outline btn-lg">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

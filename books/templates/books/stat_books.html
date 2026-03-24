@@ -1,0 +1,28 @@
+{% extends "books/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1 class="page-title">{{ title }}</h1><div class="page-subtitle">{{ subtitle }}</div></div>
+  <a href="{% url 'admin_dashboard' %}" class="btn btn-outline">← Dashboard</a>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Title</th><th>Author</th><th>Year</th><th>Genre</th><th>Copies</th><th>Available</th></tr></thead>
+    <tbody>
+      {% for b in items %}
+      <tr>
+        <td><a href="{% url 'book_detail' b.id %}" style="color:var(--text-primary);font-weight:500;">{{ b.title }}</a></td>
+        <td class="muted">{{ b.author }}</td>
+        <td class="mono">{{ b.year }}</td>
+        <td class="muted">{{ b.genre }}</td>
+        <td class="mono">{{ b.copies_total }}</td>
+        <td>
+          {% if b.is_available %}<span class="badge badge-available">{{ b.copies_available }}</span>
+          {% else %}<span class="badge badge-borrowed">0</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

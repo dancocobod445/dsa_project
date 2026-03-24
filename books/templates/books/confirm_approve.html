@@ -1,0 +1,21 @@
+{% extends "books/base.html" %}
+{% block title %}Approve Request{% endblock %}
+{% block content %}
+<div class="confirm-wrap">
+  <a href="{% url 'admin_dashboard' %}" class="btn btn-outline btn-sm" style="margin-bottom:1.5rem;">← Dashboard</a>
+  <div class="confirm-card">
+    <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--sage-light);margin-bottom:0.5rem;">Approve Request</h2>
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.2rem;">
+      Approve <strong style="color:var(--text-primary);">{{ req.borrower.get_full_name }}</strong>
+      borrowing <strong style="color:var(--text-primary);">{{ req.book.title }}</strong>
+      until <strong style="color:var(--stone-light);">{{ req.due_date|date:"d M Y" }}</strong>?
+    </p>
+    <div style="margin-bottom:1.2rem;"><span class="algo-note">This will reduce available copies and push a borrow record to the Stack.</span></div>
+    <form method="post" style="display:flex;gap:10px;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-lg" style="flex:1;justify-content:center;">Approve</button>
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-outline btn-lg" style="flex:1;justify-content:center;">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

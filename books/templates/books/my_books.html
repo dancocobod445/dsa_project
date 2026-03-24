@@ -1,0 +1,118 @@
+{% extends "books/base.html" %}
+{% block title %}My Books{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div>
+    <h1 class="page-title">My Books</h1>
+    <div class="page-subtitle">Your borrow history and active loans</div>
+  </div>
+  <a href="{% url 'book_list' %}" class="btn btn-outline">Browse Library →</a>
+</div>
+
+<!-- Active borrows -->
+<div class="section-header">
+  <span class="section-title">Currently Borrowed</span>
+  <span class="section-count">{{ active|length }} book{{ active|length|pluralize }}</span>
+</div>
+
+{% if active %}
+<div class="table-wrap" style="margin-bottom:2rem;">
+  <table>
+    <thead><tr><th>Book</th><th>Author</th><th>Approved</th><th>Due Date</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for req in active %}
+      <tr>
+        <td><a href="{% url 'book_detail' req.book.id %}" style="color:var(--text-primary);font-weight:500;">{{ req.book.title }}</a></td>
+        <td class="muted">{{ req.book.author }}</td>
+        <td class="mono">{{ req.approved_at|date:"d M Y" }}</td>
+        <td class="mono" style="color:var(--stone-light);">{{ req.due_date|date:"d M Y" }}</td>
+        <td><span class="badge badge-available">Active</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div style="padding:0.8rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem;color:var(--text-muted);margin-bottom:2rem;">
+  To return a book, visit the library and ask the librarian to process your return.
+</div>
+{% else %}
+<div class="empty-state" style="padding:1.5rem 0 2rem;">
+  <p>You have no active loans.</p>
+</div>
+{% endif %}
+
+<!-- Pending requests -->
+<div class="section-header">
+  <span class="section-title">Pending Requests</span>
+  <span class="section-count">{{ pending|length }} awaiting approval</span>
+</div>
+
+{% if pending %}
+<div class="table-wrap" style="margin-bottom:2rem;">
+  <table>
+    <thead><tr><th>Book</th><th>Author</th><th>Requested</th><th>Requested Due Date</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for req in pending %}
+      <tr>
+        <td style="font-weight:500;">{{ req.book.title }}</td>
+        <td class="muted">{{ req.book.author }}</td>
+        <td class="mono">{{ req.requested_at|date:"d M Y · H:i" }}</td>
+        <td class="mono">{{ req.due_date|date:"d M Y" }}</td>
+        <td><span class="badge badge-student">Pending</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state" style="padding:1rem 0 2rem;"><p>No pending requests.</p></div>
+{% endif %}
+
+<!-- Returned -->
+<div class="section-header">
+  <span class="section-title">Returned</span>
+  <span class="section-count">{{ returned|length }}</span>
+</div>
+{% if returned %}
+<div class="table-wrap" style="margin-bottom:2rem;">
+  <table>
+    <thead><tr><th>Book</th><th>Author</th><th>Returned</th></tr></thead>
+    <tbody>
+      {% for req in returned %}
+      <tr>
+        <td style="font-weight:500;">{{ req.book.title }}</td>
+        <td class="muted">{{ req.book.author }}</td>
+        <td class="mono">{{ req.returned_at|date:"d M Y" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state" style="padding:1rem 0 2rem;"><p>No returned books yet.</p></div>
+{% endif %}
+
+<!-- Rejected -->
+{% if rejected %}
+<div class="section-header">
+  <span class="section-title">Rejected Requests</span>
+  <span class="section-count">{{ rejected|length }}</span>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Book</th><th>Requested</th><th>Reason</th></tr></thead>
+    <tbody>
+      {% for req in rejected %}
+      <tr>
+        <td style="font-weight:500;">{{ req.book.title }}</td>
+        <td class="mono">{{ req.requested_at|date:"d M Y" }}</td>
+        <td class="muted">{{ req.rejection_reason|default:"No reason given" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% endblock %}

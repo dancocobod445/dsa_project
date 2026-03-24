@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — LibraryDSA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'books/main.css' %}">
+</head>
+<body>
+
+<div class="auth-wrap">
+
+  <!-- Left decorative panel -->
+  <div class="auth-panel-left">
+    <div class="auth-brand">LibraryDSA</div>
+    <div class="auth-brand-sub">Kwame Nkrumah University · Central Library</div>
+
+    <!-- Decorative book spines -->
+    <div style="display:flex;gap:6px;margin-top:3rem;z-index:1;">
+      <div style="width:22px;height:120px;background:#2C5282;border-radius:2px 4px 4px 2px;opacity:0.8;"></div>
+      <div style="width:22px;height:100px;background:#276749;border-radius:2px 4px 4px 2px;opacity:0.8;"></div>
+      <div style="width:22px;height:130px;background:#744210;border-radius:2px 4px 4px 2px;opacity:0.8;"></div>
+      <div style="width:22px;height:110px;background:#702459;border-radius:2px 4px 4px 2px;opacity:0.8;"></div>
+      <div style="width:22px;height:125px;background:#234E52;border-radius:2px 4px 4px 2px;opacity:0.8;"></div>
+      <div style="width:22px;height:95px;background:#63171B;border-radius:2px 4px 4px 2px;opacity:0.8;"></div>
+      <div style="width:22px;height:115px;background:#1A365D;border-radius:2px 4px 4px 2px;opacity:0.8;"></div>
+    </div>
+
+    <div class="auth-quote">
+      "A library is not a luxury but one of the necessities of life."
+      <cite>— Henry Ward Beecher</cite>
+    </div>
+
+    <div style="position:absolute;bottom:2rem;font-family:var(--font-mono);font-size:0.6rem;color:var(--text-faint);z-index:1;text-align:center;">
+      COE 363 · Data Structures &amp; Algorithms Project
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="auth-panel-right">
+    <div class="auth-form-box">
+
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your library account</p>
+
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-{{ msg.tags }}" style="margin-bottom:1rem;">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom:0.3rem;">
+          <label class="field-label" style="display:block;margin-bottom:5px;">Username</label>
+          {{ form.username }}
+        </div>
+        <div style="margin-bottom:1.2rem;">
+          <label class="field-label" style="display:block;margin-bottom:5px;">Password</label>
+          {{ form.password }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-full" style="justify-content:center;">
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-switch">
+        New student? <a href="{% url 'register' %}">Create an account →</a>
+      </div>
+
+      <!-- Demo credentials hint -->
+      <div style="margin-top:2rem;padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);">
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Demo accounts</div>
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);line-height:2;">
+          <span style="color:var(--sage-light);">librarian</span> / admin1234 &nbsp;·&nbsp; <span style="color:var(--text-faint);">Admin</span><br>
+          <span style="color:var(--slate);">kwame</span> / student1234 &nbsp;·&nbsp; <span style="color:var(--text-faint);">Student</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

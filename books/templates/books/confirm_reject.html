@@ -1,0 +1,25 @@
+{% extends "books/base.html" %}
+{% block title %}Reject Request{% endblock %}
+{% block content %}
+<div class="confirm-wrap">
+  <a href="{% url 'admin_dashboard' %}" class="btn btn-outline btn-sm" style="margin-bottom:1.5rem;">← Dashboard</a>
+  <div class="confirm-card" style="border-color:rgba(192,84,74,0.3);">
+    <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--danger);margin-bottom:0.5rem;">Reject Request</h2>
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.2rem;">
+      Reject <strong style="color:var(--text-primary);">{{ req.borrower.get_full_name }}</strong>'s
+      request for <strong style="color:var(--text-primary);">{{ req.book.title }}</strong>?
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="field-group" style="margin-bottom:1.2rem;">
+        <label class="field-label">Reason (optional)</label>
+        {{ form.reason }}
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button type="submit" class="btn btn-danger btn-lg" style="flex:1;justify-content:center;">Reject</button>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline btn-lg" style="flex:1;justify-content:center;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

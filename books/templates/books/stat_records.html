@@ -1,0 +1,24 @@
+{% extends "books/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1 class="page-title">{{ title }}</h1><div class="page-subtitle">{{ subtitle }}</div></div>
+  <a href="{% url 'admin_dashboard' %}" class="btn btn-outline">← Dashboard</a>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Action</th><th>Book</th><th>Student</th><th>ID</th><th>Date</th></tr></thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td>{% if r.action == 'borrow' %}<span class="badge badge-borrowed">Borrowed</span>{% else %}<span class="badge badge-available">Returned</span>{% endif %}</td>
+        <td style="font-weight:500;">{{ r.book.title }}</td>
+        <td class="muted">{{ r.borrower.get_full_name }}</td>
+        <td class="mono">{{ r.borrower.student_id|default:"—" }}</td>
+        <td class="mono">{{ r.timestamp|date:"d M Y · H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

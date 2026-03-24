@@ -1,0 +1,24 @@
+{% extends "books/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1 class="page-title">{{ title }}</h1><div class="page-subtitle">{{ subtitle }}</div></div>
+  <a href="{% url 'admin_dashboard' %}" class="btn btn-outline">← Dashboard</a>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Title</th><th>Author</th><th>Total Copies</th><th>Available</th><th>Out</th></tr></thead>
+    <tbody>
+      {% for b in books %}
+      <tr>
+        <td><a href="{% url 'book_detail' b.id %}" style="color:var(--text-primary);font-weight:500;">{{ b.title }}</a></td>
+        <td class="muted">{{ b.author }}</td>
+        <td class="mono">{{ b.copies_total }}</td>
+        <td class="mono" style="color:var(--sage-light);">{{ b.copies_available }}</td>
+        <td class="mono" style="color:var(--stone-light);">{{ b.copies_total|add:"-"|add:b.copies_available }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

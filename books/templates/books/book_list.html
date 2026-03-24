@@ -1,0 +1,142 @@
+{% extends "books/base.html" %}
+{% block title %}All Books{% endblock %}
+{% block content %}
+
+<div class="topbar">
+  <div>
+    <h1 class="page-title">Library Collection</h1>
+    <div class="page-subtitle">{{ stats.total }} titles · {{ stats.available }} available · {{ stats.borrowed }} fully borrowed</div>
+  </div>
+  {% if user.is_admin %}
+  <a href="{% url 'add_book' %}" class="btn btn-primary">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    Add Book
+  </a>
+  {% endif %}
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <a href="{% url 'stat_detail' 'books' %}" class="stat-card sage stat-clickable">
+    <div class="stat-label">Total Titles</div>
+    <div class="stat-value">{{ stats.total }}</div>
+    <div class="stat-hint">View all →</div>
+  </a>
+  <a href="{% url 'stat_detail' 'available' %}" class="stat-card stone stat-clickable">
+    <div class="stat-label">Available</div>
+    <div class="stat-value">{{ stats.available }}</div>
+    <div class="stat-hint">View available →</div>
+  </a>
+  <a href="{% url 'stat_detail' 'out' %}" class="stat-card slate stat-clickable">
+    <div class="stat-label">Out on Loan</div>
+    <div class="stat-value">{{ stats.borrowed }}</div>
+    <div class="stat-hint">View borrowed →</div>
+  </a>
+  {% if user.is_admin %}
+  <a href="{% url 'admin_dashboard' %}" class="stat-card danger stat-clickable">
+    <div class="stat-label">Pending Requests</div>
+    <div class="stat-value">{{ stats.pending }}</div>
+    <div class="stat-hint">Review →</div>
+  </a>
+  {% endif %}
+</div>
+
+<!-- Filter bar — sort and genre only, no algorithm selector -->
+<form method="get" id="filter-form">
+  <div class="filter-bar">
+    <span class="filter-label">Sort by</span>
+    <select name="sort" onchange="document.getElementById('filter-form').submit()">
+      <option value="title"  {% if sort_by == 'title'  %}selected{% endif %}>Title</option>
+      <option value="author" {% if sort_by == 'author' %}selected{% endif %}>Author</option>
+      <option value="year"   {% if sort_by == 'year'   %}selected{% endif %}>Year</option>
+    </select>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Genre</span>
+    <select name="genre" onchange="document.getElementById('filter-form').submit()">
+      <option value="">All genres</option>
+      {% for val, label in genre_choices %}
+        <option value="{{ val }}" {% if genre_filter == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+<!-- Available books -->
+{% if available %}
+<div class="section-header">
+  <span class="section-title">Available</span>
+  <span class="section-count">{{ available|length }} title{{ available|length|pluralize }}</span>
+</div>
+<div class="books-grid">
+  {% for book in available %}
+  <div class="book-card">
+    <a href="{% url 'book_detail' book.id %}" style="text-decoration:none;color:inherit;">
+      <div class="book-cover" style="background:{{ book.cover_color }};">
+        <div class="book-cover-lines"></div>
+        <div class="book-cover-title">{{ book.title }}</div>
+        <div class="book-cover-author">{{ book.author }}</div>
+      </div>
+      <div class="book-info">
+        <div class="book-title">{{ book.title }}</div>
+        <div class="book-author">{{ book.author }} · {{ book.year }}</div>
+        <div class="book-meta">
+          <span class="badge badge-available">{{ book.copies_available }}/{{ book.copies_total }} left</span>
+        </div>
+      </div>
+    </a>
+    <div class="book-actions">
+      {% if user.is_student %}
+        {% if book.id in my_active_ids %}
+          <span class="badge badge-borrowed" style="padding:0.4rem 0.8rem;">Currently borrowed</span>
+        {% elif book.id in my_pending_ids %}
+          <span class="badge badge-student" style="padding:0.4rem 0.8rem;">Request pending</span>
+        {% else %}
+          <a href="{% url 'borrow_book' book.id %}" class="btn btn-primary btn-sm w-full" style="justify-content:center;">Request Borrow</a>
+        {% endif %}
+      {% endif %}
+      {% if user.is_admin %}
+        <a href="{% url 'remove_book' book.id %}" class="btn btn-danger btn-sm w-full" style="justify-content:center;">Remove</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Borrowed books -->
+{% if borrowed %}
+<div class="section-header" style="margin-top:2.5rem;">
+  <span class="section-title">Fully Borrowed</span>
+  <span class="section-count">{{ borrowed|length }} title{{ borrowed|length|pluralize }}</span>
+</div>
+<div class="books-grid">
+  {% for book in borrowed %}
+  <div class="book-card" style="opacity:0.6;">
+    <a href="{% url 'book_detail' book.id %}" style="text-decoration:none;color:inherit;">
+      <div class="book-cover" style="background:{{ book.cover_color }};filter:grayscale(40%);">
+        <div class="book-cover-lines"></div>
+        <div class="book-cover-title">{{ book.title }}</div>
+        <div class="book-cover-author">{{ book.author }}</div>
+      </div>
+      <div class="book-info">
+        <div class="book-title">{{ book.title }}</div>
+        <div class="book-author">{{ book.author }} · {{ book.year }}</div>
+        <div class="book-meta">
+          <span class="badge badge-borrowed">All copies out</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if not available and not borrowed %}
+<div class="empty-state" style="margin-top:4rem;">
+  <div class="empty-icon">📚</div>
+  <p>No books yet.</p>
+  {% if user.is_admin %}<a href="{% url 'add_book' %}" class="btn btn-primary" style="margin-top:1rem;">Add the first book</a>{% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
