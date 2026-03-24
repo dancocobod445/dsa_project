@@ -14,7 +14,18 @@
 <body>
 <div class="site-wrap">
 
-  <aside class="sidebar">
+  <!-- Mobile top bar -->
+  <div class="mobile-topbar">
+    <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--text-primary);">LibraryDSA</div>
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <!-- Overlay -->
+  <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-mark">LibraryDSA</div>
       <div class="logo-sub">KNU · Central Library</div>
@@ -23,13 +34,13 @@
     <nav class="sidebar-nav">
       <div class="nav-section-label">Library</div>
 
-      <a href="{% url 'book_list' %}" class="nav-link {% if request.resolver_match.url_name == 'book_list' %}active{% endif %}">
+      <a href="{% url 'book_list' %}" class="nav-link {% if request.resolver_match.url_name == 'book_list' %}active{% endif %}" onclick="closeSidebar()">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
         All Books
       </a>
 
       {% if user.is_student %}
-      <a href="{% url 'my_books' %}" class="nav-link {% if request.resolver_match.url_name == 'my_books' %}active{% endif %}">
+      <a href="{% url 'my_books' %}" class="nav-link {% if request.resolver_match.url_name == 'my_books' %}active{% endif %}" onclick="closeSidebar()">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/></svg>
         My Books
         {% with p=user.borrow_requests.all %}
@@ -42,23 +53,23 @@
       </a>
       {% endif %}
 
-      <a href="{% url 'search_books' %}" class="nav-link {% if request.resolver_match.url_name == 'search_books' %}active{% endif %}">
+      <a href="{% url 'search_books' %}" class="nav-link {% if request.resolver_match.url_name == 'search_books' %}active{% endif %}" onclick="closeSidebar()">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z"/></svg>
         Search
       </a>
 
-      <a href="{% url 'history' %}" class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+      <a href="{% url 'history' %}" class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" onclick="closeSidebar()">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         History
       </a>
 
       {% if user.is_admin %}
       <div class="nav-section-label">Admin</div>
-      <a href="{% url 'add_book' %}" class="nav-link {% if request.resolver_match.url_name == 'add_book' %}active{% endif %}">
+      <a href="{% url 'add_book' %}" class="nav-link {% if request.resolver_match.url_name == 'add_book' %}active{% endif %}" onclick="closeSidebar()">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         Add Book
       </a>
-      <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+      <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" onclick="closeSidebar()">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
         Dashboard
       </a>
@@ -95,6 +106,20 @@
     {% block content %}{% endblock %}
   </main>
 </div>
+
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('active');
+    document.getElementById('hamburger').classList.toggle('is-open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('active');
+    document.getElementById('hamburger').classList.remove('is-open');
+  }
+</script>
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>
